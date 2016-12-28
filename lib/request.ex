@@ -7,7 +7,7 @@ defmodule ExMapbox.Request do
     def url(method, url, body \\ "") do
         %ExMapbox.Request{
             method: method,
-            url: Application.get_env(:ex_mapbox, :base_url) + url,
+            url: "#{Application.get_env(:ex_mapbox, :base_url)}#{url}",
             body: body
         }
     end

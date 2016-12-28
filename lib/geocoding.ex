@@ -40,6 +40,15 @@ defmodule ExMapbox.Geocoding do
         Request.url method, url
     end
 
+    @doc """
+
+    """
+    def base_req(%{ query: query }, mode, method) do
+        token = Application.get_env(:ex_mapbox, :access_token)
+        url = "/geocoding/v5/#{@modes[mode]}/#{URI.encode(query)}.json?access_token=#{token}"
+        Request.url method, url
+    end
+
     defp add_types(url, nil), do: url
     defp add_types(url, []),  do: url
     defp add_types(url, types) do
