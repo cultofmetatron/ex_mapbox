@@ -1,0 +1,2 @@
+defmodule ExMapbox do
+end
