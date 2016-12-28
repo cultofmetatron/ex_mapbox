@@ -22,7 +22,8 @@ use Mix.Config
 #
 
 config :ex_mapbox, 
-    base_url: "https://api.mapbox.com"
+    base_url: "https://api.mapbox.com",
+    access_token: ""
 
 
 # It is also possible to import configuration files, relative to this
