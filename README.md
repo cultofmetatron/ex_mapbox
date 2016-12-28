@@ -1,6 +1,6 @@
 # ExMapbox
 
-**TODO: Add description**
+## Note : still beign developed, don't use yet
 
 ## Installation
 
