@@ -70,7 +70,7 @@ defmodule ExMapbox.Geocoding do
     defp add_proximity(url, nil), do: url
     defp add_proximity(url, {lat, lng}) do
         # proximity=20%2C%2033
-        str = URI.encode("#{lat}, #{lng}")
+        str = "#{lat}%2C%20#{lng}"
         "#{url}&proximity=#{str}"
     end
 
