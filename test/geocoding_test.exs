@@ -78,6 +78,18 @@ defmodule ExMapbox.GeocodingTest do
           assert req.url =~ "https://api.mapbox.com/geocoding/v5/mapbox.places/shrewsbury.json"
           assert req.url =~ "&proximity=22%2C%2044"
       end
+
+
+      test "works with limit" do
+          req = %{
+              query: "shrewsbury",
+              params: %{
+                  limit: 2
+              }
+          } |> ExMapbox.Geocoding.base_req(:places, "GET")
+          assert req.url =~ "https://api.mapbox.com/geocoding/v5/mapbox.places/shrewsbury.json"
+          assert req.url =~ "&limit=2"
+      end
   end
 
 end

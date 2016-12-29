@@ -18,7 +18,7 @@ defmodule ExMapbox.Geocoding do
         place: "place",
         postcode: "postcode",
         region: "region",
-        country: "country"
+        country: "country",
     }
 
     defstruct mode: @modes[:places], 
@@ -37,6 +37,7 @@ defmodule ExMapbox.Geocoding do
             |> add_proximity(Map.get(params, :proximity))
             |> add_boundingbox(Map.get(params, :bounding_box))
             |> add_autocomplete(Map.get(params, :autocomplete))
+            |> add_limit(Map.get(params, :limit))
         Request.url method, url
     end
 
@@ -84,6 +85,11 @@ defmodule ExMapbox.Geocoding do
     def add_autocomplete(url, nil), do: url
     def add_autocomplete(url, true), do: "#{url}&autocomplete=true"
     def add_autocomplete(url, false), do: "#{url}&autocomplete=false"
+
+    def add_limit(url, nil), do: url
+    def add_limit(url, limit) when is_number(limit) do
+        "#{url}&limit=#{limit}"
+    end
 
 
 
