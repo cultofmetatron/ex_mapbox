@@ -24,6 +24,20 @@ defmodule ExMapbox.Geocoding do
     defstruct mode: @modes[:places], 
         method: "GET"
 
+
+    def search(params, mode) do
+        %{url: url} = search_places_request(params, mode, "GET")
+        case HTTPoison.get(url) do
+            {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+                {:ok, body}
+            {:ok, %HTTPoison.Response{status_code: 404, body: body}} ->
+                {:error, body }
+            {:ok, %HTTPoison.Response{status_code: 404}} ->
+                IO.puts "Not found :("
+            {:error, %HTTPoison.Error{reason: reason}} ->
+                IO.inspect reason
+        end
+    end
     
     
     @doc """
@@ -41,7 +55,7 @@ defmodule ExMapbox.Geocoding do
         Request.url method, url
     end
 
-    def search_places(%{lat: lat, lng: lng}, mode, method) do
+    def search_places_request(%{lat: lat, lng: lng}, mode, method) do
 
     end
 
