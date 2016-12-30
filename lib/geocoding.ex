@@ -41,6 +41,10 @@ defmodule ExMapbox.Geocoding do
         Request.url method, url
     end
 
+    def search_places(%{lat: lat, lng: lng}, mode, method) do
+        
+    end
+
     @doc """
 
     """
