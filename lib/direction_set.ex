@@ -13,9 +13,38 @@ defmodule ExMapbox.DirectionSet do
     @semicolon "%3B"
     @comma "%2C"
 
+    alias ExMapbox.Waypoint
+    alias ExMapbox.Route
+
+    defstruct [
+        {:alternatives, false},
+        {:profile, :driving},
+        {:geometries, :geojson},
+        {:overview, :simplified},
+        {:radiuses, []},
+        {:continue_straight: true},
+        {:bearings, []},
+        {:waypoints, []},
+        {:routes, routes}
+    ]
+
 
 
     def retrieve() do
+        
+    end
+
+    @doc """
+        takes the types comming in an returns a map of the raw output
+        without any post processing
+    """
+    def retrieve_raw(coordinates, params, profile) do
+        if profile in Map.keys(@profile_types) do
+            raw_url({coordinates, params}, Map.get(@profile_types, profile))
+                |> HTTPoison.get()
+        else
+            raise ArgumentError, message: "invalid profile type"
+        end
         
     end
 
