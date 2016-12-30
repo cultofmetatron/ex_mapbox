@@ -2,11 +2,11 @@ defmodule ExMapbox.GeocodingTest do
   use ExUnit.Case
   doctest ExMapbox, async: true
 
-  describe "ExMapbox.Geocoding.search_places" do
+  describe "ExMapbox.Geocoding.search_places_request" do
       test "returns a base query" do
           req = %{
               query: "shrewsbury"
-          } |> ExMapbox.Geocoding.search_places(:places, "GET")
+          } |> ExMapbox.Geocoding.search_places_request(:places, "GET")
           
           assert Map.get(req, :method) == "GET"
           assert req.url =~ "https://api.mapbox.com/geocoding/v5/mapbox.places/shrewsbury.json"
@@ -18,7 +18,7 @@ defmodule ExMapbox.GeocodingTest do
               params: %{
                   types: [:locality]
               }
-          } |> ExMapbox.Geocoding.search_places(:places, "GET")
+          } |> ExMapbox.Geocoding.search_places_request(:places, "GET")
           assert req.url =~ "https://api.mapbox.com/geocoding/v5/mapbox.places/shrewsbury.json"
           assert req.url =~ "&types=locality"
       end
@@ -29,7 +29,7 @@ defmodule ExMapbox.GeocodingTest do
               params: %{
                   types: [:locality, :address]
               }
-          } |> ExMapbox.Geocoding.search_places(:places, "GET")
+          } |> ExMapbox.Geocoding.search_places_request(:places, "GET")
           assert req.url =~ "https://api.mapbox.com/geocoding/v5/mapbox.places/shrewsbury.json"
           assert req.url =~ "&types=locality%2Caddress"
       end
@@ -40,7 +40,7 @@ defmodule ExMapbox.GeocodingTest do
               params: %{
                   country: ["us"]
               }
-          } |> ExMapbox.Geocoding.search_places(:places, "GET")
+          } |> ExMapbox.Geocoding.search_places_request(:places, "GET")
           assert req.url =~ "https://api.mapbox.com/geocoding/v5/mapbox.places/shrewsbury.json"
           assert req.url =~ "&country=us"
       end
@@ -51,7 +51,7 @@ defmodule ExMapbox.GeocodingTest do
               params: %{
                   country: ["us", "ae"]
               }
-          } |> ExMapbox.Geocoding.search_places(:places, "GET")
+          } |> ExMapbox.Geocoding.search_places_request(:places, "GET")
           assert req.url =~ "https://api.mapbox.com/geocoding/v5/mapbox.places/shrewsbury.json"
           assert req.url =~ "&country=us%2Cae"
       end
@@ -62,7 +62,7 @@ defmodule ExMapbox.GeocodingTest do
               params: %{
                   bounding_box: {1, 2, 3, 4}
               }
-          } |> ExMapbox.Geocoding.search_places(:places, "GET")
+          } |> ExMapbox.Geocoding.search_places_request(:places, "GET")
           assert req.url =~ "https://api.mapbox.com/geocoding/v5/mapbox.places/shrewsbury.json"
           assert req.url =~ "&bbox=1%2C2%2C3%2C4"
 
@@ -74,7 +74,7 @@ defmodule ExMapbox.GeocodingTest do
               params: %{
                   proximity: {22, 44}
               }
-          } |> ExMapbox.Geocoding.search_places(:places, "GET")
+          } |> ExMapbox.Geocoding.search_places_request(:places, "GET")
           assert req.url =~ "https://api.mapbox.com/geocoding/v5/mapbox.places/shrewsbury.json"
           assert req.url =~ "&proximity=22%2C%2044"
       end
@@ -86,7 +86,7 @@ defmodule ExMapbox.GeocodingTest do
               params: %{
                   limit: 2
               }
-          } |> ExMapbox.Geocoding.search_places(:places, "GET")
+          } |> ExMapbox.Geocoding.search_places_request(:places, "GET")
           assert req.url =~ "https://api.mapbox.com/geocoding/v5/mapbox.places/shrewsbury.json"
           assert req.url =~ "&limit=2"
       end

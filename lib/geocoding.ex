@@ -29,7 +29,7 @@ defmodule ExMapbox.Geocoding do
     @doc """
 
     """
-    def search_places(%{ query: query, params: params }, mode, method) do
+    def search_places_request(%{ query: query, params: params }, mode, method) do
         token = Application.get_env(:ex_mapbox, :access_token)
         url = "/geocoding/v5/#{@modes[mode]}/#{URI.encode(query)}.json?access_token=#{token}"
             |> add_types(Map.get(params, :types))
@@ -42,13 +42,13 @@ defmodule ExMapbox.Geocoding do
     end
 
     def search_places(%{lat: lat, lng: lng}, mode, method) do
-        
+
     end
 
     @doc """
 
     """
-    def search_places(%{ query: query }, mode, method) do
+    def search_places_request(%{ query: query }, mode, method) do
         token = Application.get_env(:ex_mapbox, :access_token)
         url = "/geocoding/v5/#{@modes[mode]}/#{URI.encode(query)}.json?access_token=#{token}"
         Request.url method, url
