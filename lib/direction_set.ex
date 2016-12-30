@@ -1,4 +1,4 @@
-defmodule ExMapbox.Directions do
+defmodule ExMapbox.DirectionSet do
     @moduledoc """
     Takes care of directions for great justice
     impliments:
@@ -79,7 +79,6 @@ defmodule ExMapbox.Directions do
     defp process_param(query_string, :continue_straight, true),  do: "#{query_string}&continue_straight=true"
 
     @docp """
-        from the offical docs
         Used to filter the road segment the waypoint will be placed on by direction and 
         dictates the angle of approach. This option should always be used in conjunction 
         with the  radiuses parameter. The parameter takes two values per waypoint: 
@@ -90,13 +89,29 @@ defmodule ExMapbox.Directions do
         their current direction. A request that does this would provide bearing and 
         radius values for the first waypoint and leave the remaining values empty. 
         If provided, the list of bearings must be the same length as the list of waypoints, 
-        but you can skip a coordinate and show its position with the  ; separator.   
+        but you can skip a coordinate and show its position with the  ; separator.
+
+       bearings : [({theta, deviation} or nil)..]  
+
+
+        *!!length of bearings must equal length of coordinates!!*
     """
-    defp process_param(query_string, :bearings, nil), do: query_string
-    defp process_param(query_string, :bearings, []), do: query_string
-    defp process_param(query_string, :bearings, bearings) when is_list(bearings) do
-        :foo
+    defp process_param(query_string, :bearings, nil, coordinates), do: query_string
+    defp process_param(query_string, :bearings, [], coordinates), do: query_string
+    defp process_param(query_string, :bearings, bearings, coordinates) when is_list(bearings) do
+        if Enum.count(bearings) == Enum.count(coordinates) do
+            bearings = bearings
+                |> Enum.map(&process_bearing/1)
+                |> Enum.join(@semicolon)
+            "#{query_string}&bearings=#{bearings}"
+        else
+            raise ArgumentError, message: "number of coordinates must match number of coordinates!"
+        end
     end
+
+    #helper function for bearings
+    defp process_bearing({theta, deviation}), do: "#{theta}#{@comma}#{deviation}"
+    defp process_bearing(nil), do: ""
 
 
 
