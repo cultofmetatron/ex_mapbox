@@ -24,7 +24,7 @@ defmodule ExMapbox.DirectionSet do
     profile: profile in @profile_types : [:driving, :walking, :cycling]
     """
     def raw_url({coordinates, params}, profile) when is_list(coordinates) do
-        params = extract_params(params)
+        params = extract_params(params, coordinates)
         token = Application.get_env(:ex_mapbox, :access_token)
         coordinates = coordinates 
             |> Enum.map(&process_coordinate/1)
@@ -37,11 +37,16 @@ defmodule ExMapbox.DirectionSet do
     end
 
         #takes the list and extracts them
-    defp extract_params(params) when is_map(params) do
+    defp extract_params(params, coordinates) when is_map(params) do
        query_string = ""
-           |> process_param(:alternatives, Map.get(params, :alternatives))       
+           |> process_param(:alternatives, Map.get(params, :alternatives))
+           |> process_param(:geometries,   Map.get(params, :geometries))
+           |> process_param(:overview,     Map.get(params, :overview))
+           |> process_param(:radiuses,     Map.get(params, :radiuses), coordinates)
+           |> process_param(:steps,        Map.get(params, :steps))
+           |> process_param(:continue_straight, Map.get(params, :continue_straight))
+           |> process_param(:bearings,    Map.get(params, :bearings), coordinates)       
     end
-
 
     defp process_param(query_string, :alternatives, nil),   do: query_string
     defp process_param(query_string, :alternatives, true),  do: "#{query_string}&alternatives=true"
@@ -58,7 +63,7 @@ defmodule ExMapbox.DirectionSet do
     defp process_param(query_string, :overview, :full), do: "#{query_string}&overview=full"
 
     defp process_param(query_string, :radiuses, nil, _), do: query_string
-    defp process_param(query_string, :raiduses, [], _), do: query_string
+    defp process_param(query_string, :radiuses, [], _), do: query_string
     defp process_param(query_string, :radiuses, radiuses, coordinates) do
         if Enum.count(radiuses) == Enum.count(coordinates) do
             rads = radiuses
@@ -79,22 +84,16 @@ defmodule ExMapbox.DirectionSet do
     defp process_param(query_string, :continue_straight, true),  do: "#{query_string}&continue_straight=true"
 
     @docp """
-        Used to filter the road segment the waypoint will be placed on by direction and 
-        dictates the angle of approach. This option should always be used in conjunction 
-        with the  radiuses parameter. The parameter takes two values per waypoint: 
-        the first is an angle clockwise from true north between 0 and 360. 
-        The second is the range of degrees the angle can deviate by. 
-        We recommend a value of 45° or 90° for the range, as bearing measurements tend to be inaccurate. 
-        This is useful for making sure we reroute vehicles on new routes that continue traveling in 
-        their current direction. A request that does this would provide bearing and 
-        radius values for the first waypoint and leave the remaining values empty. 
-        If provided, the list of bearings must be the same length as the list of waypoints, 
-        but you can skip a coordinate and show its position with the  ; separator.
+    each bearing is a tuple {theta, deviation} or nil
+    where
+        theta: the angle from north we want the direction to go in. useful for 
+               moving vehcles goign in a direction already
+        deviation: allowed deviation. 45 or 90 degrees reccomended
 
-       bearings : [({theta, deviation} or nil)..]  
+    bearings : [({theta, deviation} or nil)..]  
 
 
-        *!!length of bearings must equal length of coordinates!!*
+    *!!length of bearings must equal length of coordinates!!*
     """
     defp process_param(query_string, :bearings, nil, coordinates), do: query_string
     defp process_param(query_string, :bearings, [], coordinates), do: query_string
@@ -105,14 +104,15 @@ defmodule ExMapbox.DirectionSet do
                 |> Enum.join(@semicolon)
             "#{query_string}&bearings=#{bearings}"
         else
-            raise ArgumentError, message: "number of coordinates must match number of coordinates!"
+            raise ArgumentError, message: "number of bearings must match number of coordinates!"
         end
     end
 
     #helper function for bearings
-    defp process_bearing({theta, deviation}), do: "#{theta}#{@comma}#{deviation}"
     defp process_bearing(nil), do: ""
-
+    defp process_bearing({theta, deviation}) when is_number(theta) and is_number(deviation) do
+         "#{theta}#{@comma}#{deviation}"
+    end
 
 
 end
