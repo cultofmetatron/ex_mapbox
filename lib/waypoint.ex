@@ -1,5 +1,5 @@
 defmodule ExMapbox.Waypoint do
-    @enforce_keys [:name, latitude, longitude]
+    @enforce_keys [:name, :latitude, :longitude]
     defstruct [:name, :latitude, :longitude]
     alias ExMapbox.Waypoint
 

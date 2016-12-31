@@ -22,10 +22,11 @@ defmodule ExMapbox.DirectionSet do
         {:geometries, :geojson},
         {:overview, :simplified},
         {:radiuses, []},
-        {:continue_straight: true},
+        {:continue_straight, true},
         {:bearings, []},
         {:waypoints, []},
-        {:routes, routes}
+        {:routes, []},
+        {:fetched: false} #tells us if the server was pulled
     ]
 
 
