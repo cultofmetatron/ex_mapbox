@@ -29,7 +29,8 @@ defmodule ExMapbox.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.10.0"},
-      {:poison, "~> 3.0"}
+      {:poison, "~> 3.0"},
+      {:pipe, "~> 0.0.2"},
     ]
   end
 end

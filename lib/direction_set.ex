@@ -12,7 +12,7 @@ defmodule ExMapbox.DirectionSet do
 
     @semicolon "%3B"
     @comma "%2C"
-
+    use pipe
     alias ExMapbox.Waypoint
     alias ExMapbox.Route
 
@@ -26,7 +26,7 @@ defmodule ExMapbox.DirectionSet do
         {:bearings, []},
         {:waypoints, []},
         {:routes, []},
-        {:fetched: false} #tells us if the server was pulled
+        {:fetched, false} #tells us if the server was pulled
     ]
 
 
@@ -41,13 +41,28 @@ defmodule ExMapbox.DirectionSet do
     """
     def retrieve_raw(coordinates, params, profile) do
         if profile in Map.keys(@profile_types) do
-            raw_url({coordinates, params}, Map.get(@profile_types, profile))
-                |> HTTPoison.get()
+            case call_endpoint({coordinates, params}, profile)
         else
             raise ArgumentError, message: "invalid profile type"
         end
         
     end
+
+    def call_endpoint({coordinates, params}, profile) do
+        status = pipe_matching {:ok, _}, {:ok, raw_url({coordinates, params}, Map.get(@profile_types, profile))}
+            |> HTTPoison.get()
+            |> parse_response()
+    end
+
+    def parse_response({:ok, %HTTPoison.Response{}=response}) do
+        
+    end
+
+    def cast_structs({:ok, response}) do
+        
+    end
+
+
 
     @doc """
     corrdinates: [{lat, lng}...],

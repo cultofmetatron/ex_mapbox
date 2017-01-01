@@ -1,3 +1,6 @@
 defmodule ExMapbox.RouteLeg do
-    defstruct []
+    @enforce_keys [:distance, :duration]
+    defstruct distance: nil, duration: nil, steps: []
+
+    def create(%{})
 end
