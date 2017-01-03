@@ -80,6 +80,14 @@ defmodule ExMapbox.DirectionSet do
     def get_directions({:error, msg}), do: {:error, msg}
     def get_directions({:ok, url}), do: HTTPoison.get(url)
 
+    def process_waypoints() do
+        :ok
+    end
+
+    def process_routes() do
+        :ok
+    end
+
     def cast_structs({:ok, response}) do
         
     end
