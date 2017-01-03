@@ -12,7 +12,7 @@ defmodule ExMapbox.DirectionSet do
 
     @semicolon "%3B"
     @comma "%2C"
-    use pipe
+    use Pipe
     alias ExMapbox.Waypoint
     alias ExMapbox.Route
 
@@ -30,9 +30,16 @@ defmodule ExMapbox.DirectionSet do
     ]
 
 
+    @doc """
+    retrieves a list of directions
 
-    def retrieve() do
-        
+
+    """
+    def retrieve(coordinates, profile, param_list \\ []) do
+        params = param_list
+            |> Enum.chunk(2)
+            |> Enum.into(%{}, fn [key, val] -> {key, val} end)
+        retrieve_raw(coordinates, params, profile)
     end
 
     @doc """
@@ -41,27 +48,46 @@ defmodule ExMapbox.DirectionSet do
     """
     def retrieve_raw(coordinates, params, profile) do
         if profile in Map.keys(@profile_types) do
-            case call_endpoint({coordinates, params}, profile)
+            call_endpoint({coordinates, params}, profile)
         else
             raise ArgumentError, message: "invalid profile type"
         end
-        
     end
 
     def call_endpoint({coordinates, params}, profile) do
         status = pipe_matching {:ok, _}, {:ok, raw_url({coordinates, params}, Map.get(@profile_types, profile))}
-            |> HTTPoison.get()
+            |> (fn(val) -> 
+                IO.inspect(val |> elem(1))
+                val |> elem(1) |> HTTPoison.get() 
+            end).()
             |> parse_response()
     end
 
-    def parse_response({:ok, %HTTPoison.Response{}=response}) do
-        
+    def parse_response({:error, msg}), do: {:error, msg}
+    def parse_response({:ok, %HTTPoison.Response{body: body}=response}) do
+        case Poison.Parser.parse(body, keys: :atoms) do
+            {:ok, %{ code: "Ok" } = body} ->
+                {:ok, body}
+            {:ok, %{ :message => msg }} ->
+                {:error, msg}
+            {:ok, body} ->
+                {:error, body}
+            {:error, body} ->
+                {:error, body}
+        end
     end
+
+    def get_directions({:error, msg}), do: {:error, msg}
+    def get_directions({:ok, url}), do: HTTPoison.get(url)
 
     def cast_structs({:ok, response}) do
         
     end
 
+    #correct
+    #"https://api.mapbox.com/directions/v5/mapbox/driving/-73.989%2C40.733%3B-74%2C40.733.json?access_token=pk.eyJ1IjoiY3VsdG9mbWV0YXRyb24iLCJhIjoiY2l4OWdxZjR0MDAyajJ0bnhibXoydGVxcSJ9.c_wvEU8hJgitM2c4_d85qw"
+    #crappy
+    #"https://api.mapbox.com/directions/v5//-73.989%2C40.733%3B-74%2C40.733.json?access_token=pk.eyJ1IjoiY3VsdG9mbWV0YXRyb24iLCJhIjoiY2l4OWdxZjR0MDAyajJ0bnhibXoydGVxcSJ9.c_wvEU8hJgitM2c4_d85qw"
 
 
     @doc """
@@ -74,7 +100,9 @@ defmodule ExMapbox.DirectionSet do
         coordinates = coordinates 
             |> Enum.map(&process_coordinate/1)
             |> Enum.join(@semicolon)
-        "https://api.mapbox.com/directions/v5/#{@profile_types[profile]}/#{coordinates}?&access_token=#{token}"
+        IO.puts("profile")
+        IO.puts(profile)
+        "https://api.mapbox.com/directions/v5/#{profile}/#{coordinates}.json?access_token=#{token}"
     end
 
     defp process_coordinate({lat, lng}) when is_number(lat) and is_number(lng) do
